@@ -14,6 +14,7 @@ class CBaseSignal(baseStrategy.CBaseStrategy):
 		self.name = "baseSignal"
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
+		#print self.name, data["dateTime"]
 		#self.sendMessageToClient("onRtnMarketData")
 		pass #print self.name, "onRtnMarketData", self.stockCode, len(data)
 	#逐笔成交触发函数

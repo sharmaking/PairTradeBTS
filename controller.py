@@ -19,12 +19,12 @@ g_subStocks = []
 #-----------------------
 #单只股票策略对象池
 g_SSDict = {}
-g_SSDict["baseSingal"] = signalStrategy.CBaseSignal
-g_SSDict["pairTradeTickSignal"] = signalStrategy.CPairTradeTickSignal
+g_SSDict["baseSignal"] = signalStrategy.CBaseSignal
 #多只股票策略对象池
 g_MSDict = {}
 g_MSDict["baseMultiple"] = multipleStrategy.CBaseMultiple
-g_MSDict["pairTradeParaMultiple"] = multipleStrategy.CPairTradeParaMultiple
+g_MSDict["statisticalArbitrageMultiple"] = multipleStrategy.CStatisticalArbitrageMultiple
+g_MSDict["formatPairDataMultiple"] = multipleStrategy.CFormatPairDataMultiple
 #-----------------------
 #实现函数
 #-----------------------
