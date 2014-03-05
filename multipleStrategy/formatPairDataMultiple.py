@@ -16,15 +16,16 @@ class CFormatPairDataMultiple(baseMultiple.CBaseMultiple):
 		self.outputFilePath = "F:\\backTestData\\"
 		self.fistData = False
 		self.preDateTime = 0
-		self.timeInterval = datetime.timedelta(seconds = 1)
+		self.timeInterval = datetime.timedelta(seconds = 5)
 		self.allFormartedDatas = []
 
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
-		if not self.fistData:
-			self.fistData = True
-			self.preDateTime = copy.copy(data["dateTime"])
-		self.creatBarData(data)
+		if data["dateTime"].time() > datetime.time(9,30,00):
+			if not self.fistData:
+				self.fistData = True
+				self.preDateTime = copy.copy(data["dateTime"]).replace(minute = 30, second = 0, microsecond = 0)
+			self.creatBarData(data)
 	def dayEnd(self):
 		if self.preDateTime:
 			print self.preDateTime.date()
@@ -41,12 +42,12 @@ class CFormatPairDataMultiple(baseMultiple.CBaseMultiple):
 			if line[0]:
 				self.rzrq.append(line[0])
 	def creatBarData(self, data):
-		while (data["dateTime"].second != self.preDateTime.second or\
-				(data["dateTime"].second == self.preDateTime.second and\
-				data["dateTime"].minute != self.preDateTime.minute)) and\
+		while (data["dateTime"] - self.preDateTime > self.timeInterval)and\
 				data["dateTime"].day == self.preDateTime.day:
 			self.createFormatData()
 			self.preDateTime = self.preDateTime + self.timeInterval
+		if data["dateTime"].day != self.preDateTime.day:
+			self.preDateTime = copy.copy(data["dateTime"]).replace(minute = 30, second = 0, microsecond = 0)
 	def createFormatData(self):
 		formatDataTime = self.preDateTime.replace(microsecond = 0)
 		formatData = [formatDataTime]
@@ -72,7 +73,7 @@ class CFormatPairDataMultiple(baseMultiple.CBaseMultiple):
 				outputFile = open(outputFilePath, "a")
 				content = "Time,"
 				for stock in self.rzrq:
-					content = content + stock + "," 
+					content = content + "s" + stock + "," 
 				content = content[:-2] + "\n"
 				outputFile.write(content)
 				outputFile.close()
