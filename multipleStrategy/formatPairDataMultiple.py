@@ -25,6 +25,8 @@ class CFormatPairDataMultiple(baseMultiple.CBaseMultiple):
 			if not self.fistData:
 				self.fistData = True
 				self.preDateTime = copy.copy(data["dateTime"]).replace(minute = 30, second = 0, microsecond = 0)
+			if data["dateTime"].time()>datetime.time(13,00,00) and self.preDateTime.time()<datetime.time(13,00,00):
+				self.preDateTime.replace(hour=13, minute = 00, second = 0, microsecond = 0)
 			self.creatBarData(data)
 	def dayEnd(self):
 		if self.preDateTime:

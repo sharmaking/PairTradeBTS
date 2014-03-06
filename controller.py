@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #controller.py
-import copy, datetime
-import dataServerApi, dataListener, strategyActuator
+import copy, datetime, multiprocessing
+import dataListener, strategyActuator
+from DataApi_32 import CDataProcess
 #载入策略
 import signalStrategy, multipleStrategy
 #-----------------------
@@ -40,12 +41,6 @@ def loadSubStocks():
 		if not line:
 			break
 		g_subStocks.append(line)
-#创建数据连接对象
-def creatDataServerLink():
-	dataServerInstance = dataServerApi.CDataServerApi(HOST,PORT)
-	dataServerInstance.init(g_StrategyActuatorDict)
-	dataServerInstance.connectServer()
-	return dataServerInstance
 #创建策略对象
 def creatStrategyObject(needSignal, stock):
 	strategyObjDict = {}
@@ -65,7 +60,7 @@ def creatStrategyObject(needSignal, stock):
 #创建监听对象
 def creatListener(bufferStack):
 	global g_listenerList
-	listenersNum = 3
+	listenersNum = 1
 	if len(g_subStocks) >= listenersNum:
 		perListenerStocksNum = len(g_subStocks)/listenersNum
 		for i in xrange(listenersNum):
@@ -91,7 +86,6 @@ def creatActuators(stocks, bufferStack, isLast):
 	for stock in stocks:
 		strategyObjDict = creatStrategyObject(True, stock)
 		if strategyObjDict:
-			bufferStack[stock]				= []
 			newActuator						= strategyActuator.CStrategyActuator(bufferStack[stock])
 			newActuator.getSignalStrategyObj(strategyObjDict)
 			g_StrategyActuatorDict[stock]	= newActuator
@@ -99,30 +93,24 @@ def creatActuators(stocks, bufferStack, isLast):
 	if isLast:	#多股票策略监听
 		strategyObjDict = creatStrategyObject(False, "Multiple")
 		if strategyObjDict:
-			bufferStack["Multiple"]				= []
 			newActuator							= strategyActuator.CStrategyActuator(bufferStack["Multiple"])
 			newActuator.getmultipleStrategyObj(strategyObjDict)
 			g_StrategyActuatorDict["Multiple"]	= newActuator
 			actuatorDict["Multiple"] 			= newActuator
 	return actuatorDict
-
 #主入口
 def main():
 	#注册策略
 	#载入订阅股票代码
 	loadSubStocks()
 	#创建数据连接对象
-	dataServerInstance = creatDataServerLink()
-	#创建数据监听器
-	creatListener(dataServerInstance.bufferStack)
-	#订阅股票代码
-	dataServerInstance.subscibeStock(SUB_ALL_STOCK, g_subStocks)
-	#请求数据
-	dataServerInstance.requestData(
+	dataServerInstance = CDataProcess(
+		HOST,PORT,
+		SUB_ALL_STOCK, g_subStocks,
 		REQUEST_TYPE,
 		REQUEST_FLAG,
 		datetime.datetime.strptime(START_TIME,"%Y-%m-%d %H:%M:%S"),
 		datetime.datetime.strptime(END_TIME,"%Y-%m-%d %H:%M:%S"))
-	while 1:
-		pass
-	
+	#创建数据监听器
+	creatListener(dataServerInstance.bufferStack)
+	dataServerInstance.run()

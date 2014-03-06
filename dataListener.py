@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #dataListener.py
-import threading
+import multiprocessing
 
-class CDataListerner(threading.Thread):
+class CDataListerner(multiprocessing.Process):
 	def __init__(self, stocks, actuatorDict):
 		super(CDataListerner, self).__init__()
 		self.stocks = stocks
