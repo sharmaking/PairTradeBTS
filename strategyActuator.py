@@ -36,7 +36,7 @@ class CStrategyActuator(object):
 		while not self.bufferStack.empty():
 			dataType, data = self.bufferStack.get()
 			self.dataListening(dataType, data)
-
+	#当日数据结束，进入下一天，也是当日开始
 	def dayEnd(self):
 		if self.type:
 			for signalName, signalObj in self.signalObjDict.items():
@@ -44,3 +44,12 @@ class CStrategyActuator(object):
 		else:
 			for multipleName, multipleObj in self.multipleObjDict.items():
 				multipleObj.dayEnd()
+	#数据结束
+	def dataEnd(self):
+		self.dayEnd()
+		if self.type:
+			for signalName, signalObj in self.signalObjDict.items():
+				signalObj.dataEnd()
+		else:
+			for multipleName, multipleObj in self.multipleObjDict.items():
+				multipleObj.dataEnd()

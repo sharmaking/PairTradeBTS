@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import socket, time
+import socket, datetime, time
 import socketFun
 
 class CDataApi(socket.socket):
@@ -9,6 +9,7 @@ class CDataApi(socket.socket):
 		self.ADDR = (HOST, PORT)
 		self.connectState = True
 		self.bufferStack = bufferStack	#每个合约一个堆栈
+		self.preDataTime = datetime.datetime(1990,1,1,0,0,0)
 	#链接服务器
 	def connectServer(self):
 		self.connect(self.ADDR)
@@ -26,7 +27,6 @@ class CDataApi(socket.socket):
 			socketFun.requestSomeTimes(self, startTime.date(), endTime.date())
 		else:
 			print "Request illegal Param"
-			return
 	#启动执行
 	def run(self):
 		socketFun.recvSubscibeRespond(self, 1)
@@ -42,6 +42,13 @@ class CDataApi(socket.socket):
 		if self.bufferStack.has_key("Multiple"):
 			if dataType == 3 or dataType == 4 or dataType == 5:
 				self.bufferStack["Multiple"].put((dataType,data))
+		if data["dateTime"].date() != self.preDataTime.date():
+			self.onRtnDayEnd()
+		self.preDataTime = data["dateTime"]
+	#日期切换
+	def onRtnDayEnd(self):
+		self.bufferStack["__SystemMessage__"].put("DayEnd")
+		print "DayEnd", self.preDataTime
 	#数据传输结束
 	def onRtnDataEnd(self):
 		self.bufferStack["__SystemMessage__"].put("DataEnd")

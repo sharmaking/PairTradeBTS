@@ -107,6 +107,9 @@ class CBaseStrategy(object):
 	#当日结束
 	def dayEnd(self):
 		pass
+	#数据结束
+	def dataEnd(self):
+		pass
 	#自动保存缓存触发函数
 	def autosaveCache(self):
 		#self.saveCache(data = self.data)

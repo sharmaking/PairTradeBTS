@@ -66,16 +66,16 @@ def creatListener(bufferStack):
 		for i in xrange(listenersNum):
 			if listenersNum - i == 1:
 				actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:], bufferStack, True)
-				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:], actuatorDict)
+				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:], actuatorDict, bufferStack)
 				listener.start()
 			else:
 				actuatorDict = creatActuators(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], bufferStack, False)
-				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], actuatorDict)
+				listener = dataListener.CDataListerner(g_subStocks[i*perListenerStocksNum:i*perListenerStocksNum+perListenerStocksNum], actuatorDict, bufferStack)
 				listener.start()
 			g_listenerList.append(listener)
 	else:
 		actuatorDict = creatActuators(g_subStocks, bufferStack, True)
-		listener = dataListener.CDataListerner(g_subStocks, actuatorDict)
+		listener = dataListener.CDataListerner(g_subStocks, actuatorDict, bufferStack)
 		listener.start()
 		g_listenerList.append(listener)
 #创建监听对象
